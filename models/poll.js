@@ -1,5 +1,7 @@
+//importing module
 const mongoose = require("mongoose");
 
+//defining poll schema
 const pollSchema = new mongoose.Schema({
   title: String,
   options: [
@@ -14,5 +16,6 @@ const pollSchema = new mongoose.Schema({
   ],
 });
 
+//defining a model and exporting the module
 const Poll = mongoose.model("Poll", pollSchema);
 module.exports = Poll;
