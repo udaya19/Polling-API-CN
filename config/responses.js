@@ -5,6 +5,14 @@ exports.successMessage = (message, results, success) => {
     success,
   };
 };
+
+exports.notFound = (error, success) => {
+  return {
+    error,
+    success,
+  };
+};
+
 exports.internalError = (error, success) => {
   return {
     error,
