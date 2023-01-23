@@ -5,6 +5,8 @@ const {
   notFound,
 } = require("../config/responses");
 
+const port = process.env.PORT;
+
 exports.addQuestion = async (req, res) => {
   try {
     const { title } = req.body;
@@ -34,7 +36,23 @@ exports.addOptionsToQuestion = async (req, res) => {
     await question.save();
     return res
       .status(200)
-      .json(successMessage("Options created succesfully", null, true));
+      .json(successMessage("Options created succesfully", link, true));
+  } catch (error) {
+    return res.status(500).json(internalError(error.message, false));
+  }
+};
+
+exports.addLinkToOptions = async (req, res) => {
+  try {
+    const questions = await Poll.find();
+    questions.map(async (question) => {
+      question.options.map((option) => {
+        const link = `http://localhost:${port}/questions/${question._id}/options/${option.id}/add-vote`;
+        option.link = link;
+      });
+      await question.save();
+    });
+    return res.status(200).json(successMessage(null, questions, true));
   } catch (error) {
     return res.status(500).json(internalError(error.message, false));
   }
