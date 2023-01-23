@@ -5,7 +5,7 @@ const {
   notFound,
 } = require("../config/responses");
 
-const port = process.env.PORT;
+const { port } = require("../config/port");
 
 exports.addQuestion = async (req, res) => {
   try {
