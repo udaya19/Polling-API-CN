@@ -36,7 +36,7 @@ exports.addOptionsToQuestion = async (req, res) => {
     await question.save();
     return res
       .status(200)
-      .json(successMessage("Options created succesfully", link, true));
+      .json(successMessage("Options created succesfully", true));
   } catch (error) {
     return res.status(500).json(internalError(error.message, false));
   }
