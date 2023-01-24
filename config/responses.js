@@ -1,25 +1,23 @@
 //refractoring the api responses so that code looks clean
-exports.successMessage = (message, results, success) => {
-  //will be called if api response is succesfull
-  return {
+
+exports.successResponse = (req, res, message, results) => {
+  return res.status(200).json({
     message,
     results,
-    success,
-  };
+    success: true,
+  });
 };
 
-exports.notFound = (error, success) => {
-  //will be called for not found errors
-  return {
+exports.errorResponse = (req, res, statusCode, error) => {
+  return res.status(statusCode).json({
     error,
-    success,
-  };
+    success: false,
+  });
 };
 
-exports.internalError = (error, success) => {
-  //will be called if there is any internal error
-  return {
-    error,
-    success,
-  };
+exports.serverError = (req, res, error) => {
+  return res.status(500).json({
+    error: error.message,
+    success: false,
+  });
 };

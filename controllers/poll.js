@@ -1,8 +1,8 @@
 const Poll = require("../models/poll"); //importing model
 const {
-  successMessage,
-  internalError,
-  notFound,
+  serverError,
+  successResponse,
+  errorResponse,
 } = require("../config/responses"); //importing api responses
 
 //importing value of port
@@ -16,11 +16,9 @@ exports.addQuestion = async (req, res) => {
       title,
     }); //creating a new question
     await newPoll.save(); //saving to database
-    return res
-      .status(200)
-      .json(successMessage("Poll created succesfully", null, true)); //sending response to frontend
+    return successResponse(req, res, "Poll created succeafully", null); //sending response to frontend
   } catch (error) {
-    return res.status(500).json(internalError(error.message, false)); //printing if there is any error
+    return serverError(req, res, error); //sending error message to frontend if any
   }
 };
 
@@ -30,18 +28,16 @@ exports.addOptionsToQuestion = async (req, res) => {
     const { name } = req.body;
     const question = await Poll.findById(req.params.id); //finding the quesiton by id
     if (!question) {
-      notFound("Poll not found", false); //sending error response if question not found
+      return errorResponse(req, res, 404, "Poll not found"); //raising not found error if question is not found
     }
     const optionValue = {
       name: name,
     };
     question.options.push(optionValue); ////taking input from body and storing it in array of options
     await question.save(); //saving it to database
-    return res
-      .status(200)
-      .json(successMessage("Options created succesfully", true)); //sending response to frontend
+    return successResponse(req, res, "Options created succeafully", null); //sending response to frontend
   } catch (error) {
-    return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
+    return serverError(req, res, error); //sending error message to frontend if any
   }
 };
 
@@ -56,9 +52,9 @@ exports.addLinkToOptions = async (req, res) => {
       });
       await question.save(); //saving the question
     });
-    return res.status(200).json(successMessage(null, questions, true)); //sending response to frontend
+    return successResponse(req, res, null, questions); //sending response to frontend
   } catch (error) {
-    return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
+    return serverError(req, res, error); //sending error message to frontend if any
   }
 };
 
@@ -68,21 +64,21 @@ exports.castVote = async (req, res) => {
     const { optionId, questionId } = req.params; //taking option id and question id from params
     const question = await Poll.findById(questionId); //finding question
     if (!question) {
-      return res.status(404).json(notFound("Poll not found", false)); //raising not found error if question is not found
+      return errorResponse(req, res, 404, "Question not found"); //raising not found error if question is not found
     }
     //logic to cast a vote
     question.options.map((option) => {
       if (option.id.toString() === optionId) {
         //traversing the option to match with the correct option
         option.numVotesCasted++; //incrementing vote count
-        return res.json(successMessage("Vote casted succesfully", null, false));
+        return successResponse(req, res, "Vote Casted", null); //sending success response
       } else {
-        return res.status(404).json(notFound("Option not found", false));
+        return errorResponse(req, res, 404, "Question not found"); //sending not found response
       }
     });
     await question.save(); //saving the vote count to database
   } catch (error) {
-    return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
+    return serverError(req, res, error); //sending error message to frontend if any
   }
 };
 
@@ -91,10 +87,10 @@ exports.getSingleQuestion = async (req, res) => {
   try {
     const question = await Poll.findById(req.params.id); //finding quesiton using id from params
     if (!question) {
-      return res.status(404).json(notFound("Poll not found", false)); //raising not found error if question is not found
+      return errorResponse(req, res, 404, "Question not found"); //sending not found response
     }
-    return res.status(200).json(successMessage(null, question, true)); //sending success response to frontend
+    return successResponse(req, res, null, question); //sending
   } catch (error) {
-    return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
+    return serverError(req, res, error); //catching and sending error response to frontend if any
   }
 };
