@@ -94,3 +94,37 @@ exports.getSingleQuestion = async (req, res) => {
     return serverError(req, res, error); //catching and sending error response to frontend if any
   }
 };
+
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const question = await Poll.findById(req.params.id);
+    if (!question) {
+      return errorResponse(req, res, 404, "Question not found"); //sending not found response
+    }
+    await question.remove(); //deleting from database
+    return successResponse(req, res, "Poll deleted succesfully", null);
+  } catch (error) {
+    return serverError(req, res, error); //catching and sending error response to frontend if any
+  }
+};
+
+//deleting option from question
+exports.deleteOption = async (req, res) => {
+  try {
+    const { questionId, optionId } = req.params;
+    const question = await Poll.findById(questionId);
+    if (!question) {
+      return errorResponse(req, res, 404, "Question not found"); //sending not found response
+    }
+    //logic for deleting options by iterating through the options array
+    question.options.forEach((option, index) => {
+      if (option._id.toString() === optionId.toString()) {
+        return question.options.splice(index, 1); //splicing the index if condition satisfies
+      }
+    });
+    await question.save();
+    return successResponse(req, res, "Option deleted succesfully", null);
+  } catch (error) {
+    return serverError(req, res, error); //catching and sending error response to frontend if any
+  }
+};
