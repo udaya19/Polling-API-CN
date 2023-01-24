@@ -68,7 +68,7 @@ exports.castVote = async (req, res) => {
     const { optionId, questionId } = req.params; //taking option id and question id from params
     const question = await Poll.findById(questionId); //finding question
     if (!question) {
-      notFound("Poll not found", false); //raising not found error if question is not found
+      return res.status(404).json(notFound("Poll not found", false)); //raising not found error if question is not found
     }
     //logic to cast a vote
     question.options.map((option) => {
@@ -81,6 +81,19 @@ exports.castVote = async (req, res) => {
       }
     });
     await question.save(); //saving the vote count to database
+  } catch (error) {
+    return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
+  }
+};
+
+//controller for getting single question
+exports.getSingleQuestion = async (req, res) => {
+  try {
+    const question = await Poll.findById(req.params.id); //finding quesiton using id from params
+    if (!question) {
+      return res.status(404).json(notFound("Poll not found", false)); //raising not found error if question is not found
+    }
+    return res.status(200).json(successMessage(null, question, true)); //sending success response to frontend
   } catch (error) {
     return res.status(500).json(internalError(error.message, false)); //sending error message to frontend if any
   }
